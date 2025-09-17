@@ -80,7 +80,7 @@ namespace Bulldozer
         {
             // equator stripe
             var coordLineOffset = GetCoordLineOffset(platformSystem.planet);
-            List<int> indexes = new List<int>();
+            List<int> indexes = new();
             for (var lon = -179.9f; lon < 180; lon += 0.25f)
             {
                 for (var latOffset = -1; latOffset < 1; latOffset++)
@@ -159,7 +159,7 @@ namespace Bulldozer
 
                     var lonOffsetMax = 2;
 
-                    HashSet<int> actualIndexes = new HashSet<int>();
+                    HashSet<int> actualIndexes = new();
                     for (var lonOffset = lonOffsetMin; lonOffset < lonOffsetMax; lonOffset++)
                     {
                         var lon = coordLineOffset * lonOffset + meridianOffset * 90f;
@@ -208,13 +208,13 @@ namespace Bulldozer
                 if (PluginConfig.LatitudeOutOfBounds(lat))
                     continue;
 
-                for (var meridianOffset = -180; meridianOffset < 180; meridianOffset += interval)
+                for (var meridianOffset = -180; meridianOffset < 180; meridianOffset += Mathf.RoundToInt(interval))
                 {
                     var lonOffsetMin = -1;
 
                     var lonOffsetMax = 2;
 
-                    HashSet<int> actualIndexes = new HashSet<int>();
+                    HashSet<int> actualIndexes = new();
                     for (var lonOffset = lonOffsetMin; lonOffset < lonOffsetMax; lonOffset++)
                     {
                         var lon = coordLineOffset * lonOffset + meridianOffset;

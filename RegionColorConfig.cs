@@ -7,10 +7,10 @@ namespace Bulldozer
 {
     public class RegionColorConfig
     {
-        public int minLatitude;
-        public int maxLatitude;
-        public int minLongitude;
-        public int maxLongitude;
+        public float minLatitude;
+        public float maxLatitude;
+        public float minLongitude;
+        public float maxLongitude;
         public bool mirror;
         public int colorIndex;
 
@@ -18,43 +18,60 @@ namespace Bulldozer
         {
             bool allLatitudes = minLatitude == maxLatitude;
             bool allLongs = minLongitude == maxLongitude;
-            if (allLatitudes && allLongs)
+            if (!(allLatitudes || (minLatitude <= lat && maxLatitude >= lat) || mirror && (-minLatitude >= lat && -maxLatitude <= lat)))
+                return false;
+            if (minLongitude <= maxLongitude)
+                return allLongs || minLongitude <= lng && maxLongitude >= lng;
+            else
+                return !(maxLongitude < lng && minLongitude > lng);
+        }
+
+        public List<Rect> GetRects()
+        {
+            var result = new List<Rect>();
+
+            var minLat = minLatitude;
+            var maxLat = maxLatitude;
+            var minLng = minLongitude;
+            var maxLng = maxLongitude;
+
+            if (minLatitude == maxLatitude)
             {
-                return true;
+                minLat = -90;
+                maxLat = 90;
+            }
+            if (minLongitude == maxLongitude)
+            {
+                minLng = -180;
+                maxLng = 180;
             }
 
-            if (!allLatitudes && allLongs)
+            var height = maxLat - minLat;
+            if (minLongitude > maxLongitude)
             {
-                
-                bool defaultLatsMatch = (minLatitude <= lat && maxLatitude >= lat);
-                if (defaultLatsMatch)
-                    return true;
+                result.Add(new Rect(minLng, minLat, 180 - minLng, height));
+                result.Add(new Rect(-180, minLat, maxLng + 180, height));
                 if (mirror)
-                    return (-minLatitude >= lat && -maxLatitude <= lat);
-                return false;
+                {
+                    result.Add(new Rect(minLng, -maxLat, 180 - minLng, height));
+                    result.Add(new Rect(-180, -maxLat, maxLng + 180, height));
+                }
             }
-            if (allLatitudes && !allLongs)
+            else
             {
-                
-                bool defaultLonsMatch = (minLongitude <= lng && maxLongitude >= lng);
-                if (defaultLonsMatch)
-                    return true;
-                return false;
+                result.Add(new Rect(minLng, minLat, maxLng - minLng, height));
+                if (mirror)
+                    result.Add(new Rect(minLng, -maxLat, maxLng - minLng, height));
             }
-            
-            if ((minLatitude <= lat && maxLatitude >= lat) && (minLongitude <= lng && maxLongitude >= lng))
-                return true;
-            if (!mirror)
-                return false;
-            return (-minLatitude >= lat && -maxLatitude <= lat)
-                &&  minLongitude <= lng && maxLongitude >= lng;
+
+            return result;
         }
     }
 
     public class RegionalColors
     {
         private static RegionalColors _instance;
-        private List<RegionColorConfig> _regionColorConfigs;
+        private readonly List<RegionColorConfig> _regionColorConfigs;
 
         public RegionalColors()
         {
@@ -66,10 +83,7 @@ namespace Bulldozer
         {
             get
             {
-                if (_instance == null)
-                {
-                    _instance = DeserializeFromConfigProperty();
-                }
+                _instance ??= DeserializeFromConfigProperty();
 
                 return _instance;
             }
@@ -106,12 +120,14 @@ namespace Bulldozer
             var strVal = PluginConfig.regionColors.Value;
             if (strVal.Trim().Length == 0)
             {
-                var regionColorConfig = new RegionColorConfig();
-                regionColorConfig.colorIndex = 2;
-                regionColorConfig.minLatitude = -89;
-                regionColorConfig.maxLatitude = -70;
-                regionColorConfig.minLongitude = 0;
-                regionColorConfig.maxLongitude = 0;
+                var regionColorConfig = new RegionColorConfig
+                {
+                    colorIndex = 2,
+                    minLatitude = -89,
+                    maxLatitude = -70,
+                    minLongitude = 0,
+                    maxLongitude = 0
+                };
                 var tmpResult = new RegionalColors();
                 tmpResult._regionColorConfigs.Add(regionColorConfig);
                 return tmpResult;
@@ -120,7 +136,7 @@ namespace Bulldozer
             var result = new RegionalColors();
 
             // format is "JSONREP$JSONREP"
-            var parts = strVal.Split('$');
+            var parts = strVal.Split(new char[] { '$' });
             Log.Debug($"Loading region color config from json {parts.Length} {strVal}");
             foreach (var savedValue in parts)
             {

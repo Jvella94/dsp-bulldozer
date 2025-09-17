@@ -24,7 +24,7 @@ namespace Bulldozer
             "Destroy all factory machines in selected latitude range";
 
         public static ManualLogSource logger;
-        private static List<GameObject> gameObjectsToDestroy = new();
+        private static readonly List<GameObject> gameObjectsToDestroy = new();
 
         public GameObject DrawEquatorCheck;
         public Sprite spriteChecked;
@@ -174,7 +174,7 @@ namespace Bulldozer
             }
             else if (posStr != PluginConfig.originalReformButtonPosition.Value)
             {
-                var parts = PluginConfig.originalReformButtonPosition.Value.Split(',');
+                var parts = PluginConfig.originalReformButtonPosition.Value.Split(new char[] { ',' });
                 try
                 {
                     if (float.TryParse(parts[0].Trim(), out var resultx))
@@ -194,20 +194,20 @@ namespace Bulldozer
                         Log.Debug($"Failed to parse xvalue {parts[0]}");
                     }
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
+                    Log.Warn($"Failed to parse original button position {ex.Message}");
                     // ignored
                 }
             }
         }
 
 
-        public void AddBulldozeComponents(RectTransform environmentModificationContainer, UIBuildMenu uiBuildMenu, GameObject foundationButton,
-            GameObject reformAllButton, Action<int> action)
+        public void AddBulldozeComponents(RectTransform environmentModificationContainer, GameObject foundationButton, Action<int> action)
         {
             InitOnOffSprites();
             InitActionButton(foundationButton, action);
-            InitDrawEquatorCheckbox(environmentModificationContainer, foundationButton);
+            InitDrawEquatorCheckbox(environmentModificationContainer);
             InitAlterVeinsCheckbox(environmentModificationContainer);
             InitDestroyMachinesCheckbox(environmentModificationContainer);
             InitConfigButton(environmentModificationContainer);
@@ -218,7 +218,7 @@ namespace Bulldozer
             buttonOneRectTransform = buttonToCopy.gameObject.GetComponent<RectTransform>();
             countText = null;
             ResetButtonPos(buttonOneRectTransform);
-             
+
             if (GameMain.sandboxToolsEnabled)
                 buttonOneRectTransform.anchoredPosition = new Vector2((float)(buttonOneRectTransform.anchoredPosition.x - buttonOneRectTransform.sizeDelta.x / 1.5), buttonOneRectTransform.anchoredPosition.y);
             BulldozeButton = CopyButton(buttonOneRectTransform, Vector2.right * (buttonOneRectTransform.sizeDelta.x), out countText,
@@ -236,7 +236,7 @@ namespace Bulldozer
             spriteUnChecked = Sprite.Create(texOff, new Rect(0, 0, texOff.width, texOff.height), new Vector2(0.5f, 0.5f));
         }
 
-        private void InitDrawEquatorCheckbox(RectTransform environmentModificationContainer, GameObject button1)
+        private void InitDrawEquatorCheckbox(RectTransform environmentModificationContainer)
         {
             DrawEquatorCheck = new GameObject("Draw equator line");
             gameObjectsToDestroy.Add(DrawEquatorCheck);
@@ -250,7 +250,7 @@ namespace Bulldozer
             rect.anchoredPosition = new Vector2(GetCheckBoxXValue(), -90);
             drawEquatorCheckboxButton = rect.gameObject.AddComponent<CheckboxControl>();
             drawEquatorCheckboxButton.HoverText = "Add painted guidelines at various locations (equator, tropics, meridians configurable)";
-            drawEquatorCheckboxButton.onClick += OnDrawEquatorCheckClick;
+            drawEquatorCheckboxButton.OnClick += OnDrawEquatorCheckClick;
             gameObjectsToDestroy.Add(drawEquatorCheckboxButton.gameObject);
 
             if (countText != null)
@@ -310,7 +310,7 @@ namespace Bulldozer
             gameObjectsToDestroy.Add(AlterVeinsCheckBoxImage.gameObject);
 
             AlterVeinsCheckBoxImage.sprite = PluginConfig.alterVeinState.Value ? spriteChecked : spriteUnChecked;
-            repaveCheckboxButton.onClick += OnAlterVeinCheckClick;
+            repaveCheckboxButton.OnClick += OnAlterVeinCheckClick;
         }
 
         private void InitDestroyMachinesCheckbox(RectTransform environmentModificationContainer)
@@ -348,7 +348,7 @@ namespace Bulldozer
             gameObjectsToDestroy.Add(DestroyMachinesCheckBoxImage.gameObject);
 
             DestroyMachinesCheckBoxImage.sprite = PluginConfig.destroyFactoryAssemblers.Value ? spriteChecked : spriteUnChecked;
-            destroyMachinesButton.onClick += OnDestroyMachinesCheckClick;
+            destroyMachinesButton.OnClick += OnDestroyMachinesCheckClick;
         }
 
         private float GetCheckBoxXValue()
@@ -397,7 +397,7 @@ namespace Bulldozer
             var configImgGameObject = GameObject.Find("UI Root/Overlay Canvas/In Game/Game Menu/button-3-bg/button-3/icon");
 
             ConfigIconImage.sprite = configImgGameObject.GetComponent<Image>().sprite;
-            invokeConfig.onClick += data => { PluginConfigWindow.visible = !PluginConfigWindow.visible; };
+            invokeConfig.OnClick += data => { PluginConfigWindow.visible = !PluginConfigWindow.visible; };
         }
 
 
@@ -497,13 +497,9 @@ namespace Bulldozer
             BulldozeButton.gameObject.SetActive(true);
             PaveActionButton.gameObject.SetActive(true);
             CheckBoxImage.gameObject.SetActive(true);
-            if (AlterVeinsCheckBoxImage.gameObject != null)
-            {
-                AlterVeinsCheckBoxImage.gameObject.SetActive(true);
-            }
+            AlterVeinsCheckBoxImage.gameObject?.SetActive(true);
 
-            if (DestroyMachinesCheckBoxImage.gameObject != null)
-                DestroyMachinesCheckBoxImage.gameObject.SetActive(true);
+            DestroyMachinesCheckBoxImage.gameObject?.SetActive(true);
             ConfigIconImage.gameObject.SetActive(true);
         }
 

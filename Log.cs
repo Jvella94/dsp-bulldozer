@@ -24,7 +24,7 @@ namespace Bulldozer
             logger.LogWarning($"[{DateTime.Now:HH:mm:ss.fff}] {message}");
         }
 
-        private static Dictionary<string, int> _logCount = new ();
+        private static readonly Dictionary<string, int> _logCount = new();
         public static void LogNTimes(string msg, int maxTimes,  params object[] args)
         {
             if (!_logCount.ContainsKey(msg) || maxTimes < 0)

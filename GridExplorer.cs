@@ -18,8 +18,7 @@ namespace Bulldozer
             float lastLat = 0, float lastLon = 0);
 
 
-        public static void IterateReform(BuildTool_Reform reformTool, PostComputeReformAction postComputeFn, int maxExecutionMs, float startLat = -89.9f, 
-            float startLon = -179.9f)
+        public static void IterateReform(BuildTool_Reform reformTool, PostComputeReformAction postComputeFn, int maxExecutionMs, float startLat = -89.9f)
         {
             var checkedReformIndices = new HashSet<int>();
             var checkedDataPos = new HashSet<int>();
@@ -69,17 +68,17 @@ namespace Bulldozer
                     {
                         checkedDataPos.Add(reformTool.planet.data.QueryIndex(cursorPoint));
                     }
-
-                    var flattenTerrainReform = reformTool.factory.ComputeFlattenTerrainReform(snapArgs.points, center, radius, cursorPointCount);
-                    postComputeFn?.Invoke(snapArgs, center, radius, 10, flattenTerrainReform);
+                    int costSandCount = 0;
+                    int getSandcount = 0;
+                    reformTool.factory.ComputeFlattenTerrainReform(snapArgs.points, center, radius, cursorPointCount, ref costSandCount, ref getSandcount);
+                    postComputeFn?.Invoke(snapArgs, center, radius, 10, costSandCount);
 
                     if (stopwatch.ElapsedMilliseconds > maxExecutionMs)
                     {
                         LogAndPopupMessage($"cancel after running ${stopwatch.ElapsedMilliseconds} lat={lat} / lon={lon}");
                         stopwatch.Stop();
                         // signal that we did not finish this task
-                        if (postComputeFn != null)
-                            postComputeFn(snapArgs, center, radius, 10, 0, true, lat, lon);
+                        postComputeFn?.Invoke(snapArgs, center, radius, 10, 0, true, lat, lon);
                         break;
                     }
                 }

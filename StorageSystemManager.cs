@@ -5,7 +5,6 @@ namespace Bulldozer
     /// <summary>Helps finding items on local planet from player, storage boxes and logistics stations</summary>
     public class StorageSystemManager
     {
-        private static StorageSystemManager _instance;
         private readonly PlanetFactory _factory;
         private readonly Player _player;
 
@@ -88,7 +87,9 @@ namespace Bulldozer
                 return count;
             removed += removedFromLocation;
             (removedFromLocation, successful) = RemoveFromStations(itemId, count - removed);
-            return removed + removedFromLocation;
+            if (successful)
+                return removed + removedFromLocation;
+            return 0;
         }
 
         private (int, bool successful) RemoveFromStorage(int itemId, int count)

@@ -5,7 +5,7 @@ namespace Bulldozer
     public class BulldozeIcon
     {
         // var fileBytes = File.ReadAllBytes("C:\\Users\\matts\\src\\dsp-factory-map\\Bulldozer\\Bulldozer\\bulldozer_gs.png");
-        private static byte[] pngBytes =
+        private static readonly byte[] pngBytes =
         {
             0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x08, 0x06, 0x00,
             0x00, 0x00, 0xF4, 0x78, 0xD4, 0xFA, 0x00, 0x00, 0x00, 0x04, 0x73, 0x42, 0x49, 0x54, 0x08, 0x08, 0x08, 0x08, 0x7C, 0x08, 0x64, 0x88, 0x00, 0x00, 0x00, 0x09, 0x70,
@@ -729,8 +729,10 @@ namespace Bulldozer
 
         public static Texture2D GetIconTexture(string spriteName)
         {
-            var readTex = new Texture2D(48, 48);
-            readTex.name = spriteName;
+            var readTex = new Texture2D(48, 48)
+            {
+                name = spriteName
+            };
             var result = readTex.LoadImage(pngBytes, false);
             if (result)
             {
@@ -758,7 +760,6 @@ namespace Bulldozer
                 tex.Apply(true);
                 return tex;
             }
-
             return null;
         }
     }

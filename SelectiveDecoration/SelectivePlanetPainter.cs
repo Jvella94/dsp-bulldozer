@@ -35,7 +35,6 @@ namespace Bulldozer.SelectiveDecoration
             var reformCount = platformSystem.maxReformCount;
             var setModIndexes = new HashSet<int>();
             var consumedFoundation = 0;
-            var foundationUsedUp = false;
             for (var index = 0; index < reformCount; ++index)
             {
                 var latLon = _reformIndexInfoProvider.GetForIndex(index);
@@ -52,7 +51,7 @@ namespace Bulldozer.SelectiveDecoration
                 var decoration = DecoratorForLocation(latLon);
                 if (decoration.IsNone())
                     continue;
-                
+
                 if (PluginConfig.guideLinesOnly.Value)
                 {
                     // probably need some flattening action
@@ -90,7 +89,7 @@ namespace Bulldozer.SelectiveDecoration
             }
             for (int index = 0; index < platformSystem.planet.dirtyFlags.Length; ++index)
                 platformSystem.planet.dirtyFlags[index] = true;
-            platformSystem.planet.landPercentDirty =true;
+            platformSystem.planet.landPercentDirtyFlag = true;
             if (platformSystem.planet.UpdateDirtyMeshes())
                 platformSystem.planet.factory.RenderLocalPlanetHeightmap();
         }
@@ -158,24 +157,24 @@ namespace Bulldozer.SelectiveDecoration
                     GameMain.localPlanet.AddHeightMapModLevel(index, 3);
                     continue;
                 }
-            
+
                 if (PluginConfig.LatitudeOutOfBounds(latLonForModIndex.Lat))
                 {
                     continue;
                 }
-            
+
                 if (!ShouldPave(latLonForModIndex))
                 {
                     continue;
                 }
-            
+
                 GameMain.localPlanet.AddHeightMapModLevel(index, 3);
             }
             bool[] dirtyFlags = GameMain.localPlanet.dirtyFlags;
             int length2 = dirtyFlags.Length;
             for (int index = 0; index < length2; ++index)
                 dirtyFlags[index] = true;
-            GameMain.localPlanet.landPercentDirty = true;
+            GameMain.localPlanet.landPercentDirtyFlag = true;
             if (GameMain.localPlanet.UpdateDirtyMeshes())
                 GameMain.localPlanet.factory.RenderLocalPlanetHeightmap();
 
@@ -190,42 +189,42 @@ namespace Bulldozer.SelectiveDecoration
             {
                 return true;
             }
-            
+
             if (!DecoratorForLocation(latLon.Offset(-1, -1)).IsNone())
             {
                 return true;
             }
-            
+
             if (!DecoratorForLocation(latLon.Offset(-1, 0)).IsNone())
             {
                 return true;
             }
-            
+
             if (!DecoratorForLocation(latLon.Offset(-1, 1)).IsNone())
             {
                 return true;
             }
-            
+
             if (!DecoratorForLocation(latLon.Offset(0, -1)).IsNone())
             {
                 return true;
             }
-            
+
             if (!DecoratorForLocation(latLon.Offset(0, 1)).IsNone())
             {
                 return true;
             }
-            
+
             if (!DecoratorForLocation(latLon.Offset(1, -1)).IsNone())
             {
                 return true;
             }
-            
+
             if (!DecoratorForLocation(latLon.Offset(1, 0)).IsNone())
             {
                 return true;
             }
-            
+
             if (!DecoratorForLocation(latLon.Offset(1, 1)).IsNone())
             {
                 return true;

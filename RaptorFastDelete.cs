@@ -98,7 +98,7 @@ namespace Bulldozer
 
                     RemoveConsumerComponent(entityPool[entityId].powerConId);
                     // Help remove the power consumers before removing the entity
-                    factory.RemoveEntityWithComponents(entityId);
+                    factory.RemoveEntityWithComponents(entityId, true);
                 }
 
                 for (int i = 0; i < powerSystem.netCursor; i++)
@@ -113,8 +113,7 @@ namespace Bulldozer
                     }
                 }
 
-                if (factory.planet.factoryModel != null)
-                    factory.planet.factoryModel.RefreshPowerConsumers();
+                factory.planet.factoryModel?.RefreshPowerConsumers();
             }
 
             void DeleteBelts()
@@ -172,7 +171,7 @@ namespace Bulldozer
                         cargoTraffic.beltRecycleCursor++;
                     }
 
-                    factory.RemoveEntityWithComponents(entityId);
+                    factory.RemoveEntityWithComponents(entityId, true);
                 }
             }
 

@@ -55,10 +55,7 @@ namespace Bulldozer
             }
 
             var platformSystem = GameMain.localPlanet.factory.platformSystem;
-            if (_reformIndexInfoProvider == null)
-            {
-                _reformIndexInfoProvider = new ReformIndexInfoProvider(platformSystem);
-            }
+            _reformIndexInfoProvider ??= new ReformIndexInfoProvider(platformSystem);
 
             _reformIndexInfoProvider.DoInitWork(GameMain.localPlanet);
 
@@ -157,7 +154,7 @@ namespace Bulldozer
                 if (_reformIndexInfoProvider.platformSystem != GameMain.localPlanet?.factory?.platformSystem)
                 {
                     _reformIndexInfoProvider.PlanetChanged(GameMain.localPlanet);
-                }      
+                }
                 LogAndPopupMessage("not initted");
                 return;
             }
@@ -272,7 +269,7 @@ namespace Bulldozer
                 GameMain.localPlanet.factory.RenderLocalPlanetHeightmap();
             }
 
-            factory.planet.landPercentDirty = true;
+            factory.planet.landPercentDirtyFlag = true;
 
             if (!outOfSoilPile || PluginConfig.soilPileConsumption.Value != OperationMode.Honest)
             {
@@ -331,10 +328,7 @@ namespace Bulldozer
 
             if (uiBuildMenu.currentCategory != 9)
             {
-                if (instance._ui != null)
-                {
-                    instance._ui.Hide();
-                }
+                instance._ui?.Hide();
 
                 return;
             }
@@ -342,7 +336,7 @@ namespace Bulldozer
             var inittedThisTime = false;
             if (instance._ui == null)
             {
-                instance.InitUi(uiBuildMenu);
+                instance.InitUi();
                 inittedThisTime = true;
             }
             else
@@ -365,13 +359,13 @@ namespace Bulldozer
             instance._ui.Show(inittedThisTime);
         }
 
-        private void InitUi(UIBuildMenu uiBuildMenu)
+        private void InitUi()
         {
             GameObject environmentModificationContainer = GameObject.Find("UI Root/Overlay Canvas/In Game/Function Panel/Build Menu/child-group");
             var containerRect = environmentModificationContainer.GetComponent<RectTransform>();
             var foundationButton = GameObject.Find("UI Root/Overlay Canvas/In Game/Function Panel/Build Menu/child-group/button-1");
             var reformAllButton = GameObject.Find("UI Root/Overlay Canvas/In Game/Function Panel/Build Menu/reform-group/button-reform-all");
-            
+
             _ui = containerRect.gameObject.AddComponent<UIElements>();
             UIElements.logger = logger;
             if (containerRect == null || foundationButton == null)
@@ -379,7 +373,7 @@ namespace Bulldozer
                 return;
             }
 
-            _ui.AddBulldozeComponents(containerRect, uiBuildMenu, foundationButton, reformAllButton, bt =>
+            _ui.AddBulldozeComponents(containerRect, foundationButton, bt =>
             {
                 StartCoroutine(InvokeAction(1, () =>
                 {
@@ -473,7 +467,7 @@ namespace Bulldozer
                 if (PluginConfig.IsLatConstrained())
                 {
                     popupMessage += "\nAdd foundation to locations in Selected Latitudes";
-                } 
+                }
                 else if (PluginConfig.guideLinesOnly.Value)
                 {
                     popupMessage += "\nAdd foundation needed to paint guidelines";
@@ -613,7 +607,9 @@ namespace Bulldozer
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(GameSave), "LoadCurrentGame")]
+#pragma warning disable IDE0060 // Remove unused parameter
         static void LoadCurrentGame(bool __result, string saveName)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             if (instance != null && instance._reformIndexInfoProvider != null)
                 instance._reformIndexInfoProvider.PlanetChanged(null);

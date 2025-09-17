@@ -162,7 +162,7 @@ namespace Bulldozer
 
             if (objId > 0)
             {
-                _player.factory.RemoveEntityWithComponents(objId);
+                _player.factory.RemoveEntityWithComponents(objId, true);
             }
             else if (objId < 0)
             {

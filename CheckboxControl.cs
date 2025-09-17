@@ -9,7 +9,7 @@ namespace Bulldozer
     {
         private GameObject _hoverText;
         public string HoverText = "";
-        public event Action<PointerEventData> onClick;
+        public event Action<PointerEventData> OnClick;
         public Text textObject;
 
         public void Start()
@@ -50,7 +50,7 @@ namespace Bulldozer
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            onClick?.Invoke(eventData);
+            OnClick?.Invoke(eventData);
         }
     }
 }
